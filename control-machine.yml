@@ -1,0 +1,9 @@
+- hosts: tag_component_ansible_control_machine
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - roles/control-machine/vars/vault.yml
+
+  roles:
+    - role: control-machine

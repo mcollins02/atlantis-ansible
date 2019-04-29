@@ -1,0 +1,61 @@
+---
+- name: configure devops-rpm-packages yum repo from artifactory
+  yum_repository:
+    name: devops-rpm-packages
+    description: 'Xylem Global DevOps RPM Repository'
+    baseurl: 'https://xylem.jfrog.io/xylem/devops-rpm-packages/'
+    username: '{{ control_machine_artifactory_username }}'
+    password: '{{ control_machine_artifactory_password }}'
+    gpgcheck: false
+
+- name: install yum dependencies
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ control_machine_yum_dependencies }}'
+
+- name: install pip dependencies
+  pip:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ control_machine_pip_dependencies }}'
+
+- name: create directories
+  file:
+    path: '{{ item }}'
+    state: directory
+  loop:
+    - '{{ control_machine_ssh_dir }}'
+    - '{{ control_machine_vault_dir }}'
+    - '{{ control_machine_aws_pem_dir }}'
+    - '{{ control_machine_aws_config_dir }}'
+    - '{{ control_machine_git_dir }}'
+
+- name: copy files
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    mode: '{{ item.mode | default ("0644") }}'
+  loop:
+    - {src: 'files/ssh-keys/id_rsa', dest: '{{ control_machine_ssh_dir }}/id_rsa', mode: '0600' }
+    - {src: 'files/ssh-keys/id_rsa.pub', dest: '{{ control_machine_ssh_dir }}/id_rsa.pub' }
+    - {src: '../../files/vault/sc', dest: '{{ control_machine_vault_dir }}/sc', mode: '0600' }
+    - {src: '../../files/aws-keys/{{ aws_key }}', dest: '{{ control_machine_aws_pem_dir }}/', mode: '0600' }
+    - {src: '../../files/awscli-credentials/{{ aws_credential_file }}', dest: '{{ control_machine_aws_config_dir }}/credentials' }
+
+- name: template configs
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  loop:
+    - {src: 'awscli-config/config', dest: '{{ control_machine_aws_config_dir }}/config'}
+    - {src: 'ansible-config/ansible.cfg', dest: '{{ control_machine_ansible_dir }}/ansible.cfg'}
+
+- name: clone xylem-ansible repo
+  git:
+    repo: '{{ control_machine_bitbucket_repo }}'
+    dest: '{{ control_machine_git_dir }}/xylem-ansible'
+    accept_hostkey: true
+    version: master
+    force: true
+    clone: true

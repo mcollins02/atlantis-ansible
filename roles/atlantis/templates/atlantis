@@ -1,0 +1,5 @@
+ATLANTIS_ATLANTIS_URL='{{ atlantis_environment_url }}'
+ATLANTIS_BITBUCKET_USER='{{ atlantis_environment_bitbucket_user }}'
+ATLANTIS_BITBUCKET_TOKEN='{{ atlantis_bitbucket_token }}'
+ATLANTIS_REPO_WHITELIST='{{ atlantis_environment_repo_list }}'
+ATLANTIS_ALLOW_REPO_CONFIG='{{ atlantis_allow_repo_config }}'

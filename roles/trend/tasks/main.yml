@@ -1,0 +1,28 @@
+---
+- name: configure devops-rpm-packages yum repo from artifactory
+  yum_repository:
+    name: devops-rpm-packages
+    description: 'Xylem Global DevOps RPM Repository'
+    baseurl: 'https://xylem.jfrog.io/xylem/devops-rpm-packages/'
+    username: '{{ trend_artifactory_username }}'
+    password: '{{ trend_artifactory_password }}'
+    gpgcheck: false
+
+- name: install trend rpm
+  yum:
+    name: 'ds_agent-{{ trend_version }}.el7'
+    state: present
+  register: trend_install
+
+- name: register trend
+  command: '/opt/ds_agent/dsa_control -a dsm://agents.deepsecurity.trendmicro.com:443/ tenantID:{{ vaulted_trend_tenantID }} token:{{ vaulted_trend_token }} policyid:{{ trend_policyID }}'
+  args:
+    creates: '/var/opt/ds_agent/dsa_core/ds_agent.config'
+  register: trend_register
+  notify: send slack notification
+
+- name: ensure trend is started
+  systemd:
+    name: ds_agent
+    state: started
+    enabled: true

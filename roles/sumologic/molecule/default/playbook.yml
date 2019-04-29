@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - ../../vars/vault.yml
+  vars:
+    sumologic_name: 'molecule-test-collector.xylem.com'
+    sumologic_component: 'test_app'
+    sumologic_env: 'dev'
+
+  roles:
+    - role: sumologic

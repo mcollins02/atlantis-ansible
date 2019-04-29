@@ -1,0 +1,79 @@
+---
+- name: dependencies | configure devops-rpm-packages yum repo from artifactory
+  yum_repository:
+    name: devops-rpm-packages
+    description: 'Xylem Global DevOps RPM Repository'
+    baseurl: 'https://xylem.jfrog.io/xylem/devops-rpm-packages/'
+    username: '{{ jenkins_artifactory_username }}'
+    password: '{{ jenkins_artifactory_password }}'
+    gpgcheck: false
+
+- name: dependencies | configure docker-ce yum repo
+  yum_repository:
+    name: docker
+    description: 'Docker repository'
+    baseurl: 'https://download.docker.com/linux/centos/7/$basearch/stable'
+    gpgkey: 'https://download.docker.com/linux/centos/gpg'
+    enabled: true
+
+- name: dependencies | install yum dependencies
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ jenkins_yum_dependencies }}'
+
+- name: dependencies | install pip dependencies
+  pip:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ jenkins_pip_dependencies }}'
+
+- name: dependencies | install ruby gems
+  gem:
+    name: '{{ item }}'
+    include_dependencies: true
+    state: present
+  loop: '{{ jenkins_ruby_gems }}'
+
+- name: dependencies | install binaries
+  get_url:
+    url: '{{ jenkins_artifactory_path }}/{{ item }}'
+    dest: /usr/bin/
+    mode: 0755
+    force_basic_auth: true
+    url_username: '{{ jenkins_artifactory_username }}'
+    url_password: '{{ jenkins_artifactory_password }}'
+  loop: '{{ jenkins_binary_dependencies }}'
+
+- name: dependencies | ensure docker service is started and enabled
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: dependencies | create directories
+  file:
+    path: '{{ item }}'
+    state: directory
+  loop:
+    - '{{ jenkins_vault_dir }}'
+    - '{{ jenkins_aws_pem_dir }}'
+    - '{{ jenkins_aws_config_dir }}'
+
+- name: dependencies | copy files
+  copy:
+    src: '../../files/{{ item.src }}'
+    dest: '{{ item.dest }}'
+    mode: '{{ item.mode | default ("0644") }}'
+  loop:
+    - {src: 'vault/sc', dest: '{{ jenkins_vault_dir }}/sc', mode: '0600' }
+    - {src: 'aws-keys/{{ aws_key }}', dest: '{{ jenkins_aws_pem_dir }}/', mode: '0600' }
+    - {src: 'awscli-credentials/{{ aws_credential_file }}', dest: '{{ jenkins_aws_config_dir }}/credentials' }
+
+- name: dependencies | template configs
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  loop:
+    - {src: 'awscli-config/config', dest: '{{ jenkins_aws_config_dir }}/config'}
+    - {src: 'ansible-config/ansible.cfg', dest: '{{ jenkins_ansible_dir }}/ansible.cfg'}

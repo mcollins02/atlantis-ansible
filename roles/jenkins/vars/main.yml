@@ -1,0 +1,71 @@
+---
+jenkins_ec2: true
+
+jenkins_user: 'jenkins'
+jenkins_group: 'jenkins'
+jenkins_home: '/jenkins'
+jenkins_docker_group: 'docker'
+jenkins_docker_home: '/var/lib/docker'
+
+jenkins_port: '8080'
+jenkins_http_host: '0.0.0.0'
+jenkins_http_port: '8080'
+jenkins_log_dir: '{{ jenkins_home }}/logs'
+jenkins_ebs_vol: '/dev/xvdf'
+jenkins_docker_ebs_vol: '/dev/xvdg'
+jenkins_max_mem: '512M'
+
+jenkins_ansible_dir: '/etc/ansible'
+jenkins_vault_dir: '{{ jenkins_ansible_dir }}/.vault'
+jenkins_aws_pem_dir: '{{ jenkins_ansible_dir }}/.aws'
+jenkins_aws_config_dir: '~/.aws'
+
+jenkins_artifactory_path: 'https://xylem.jfrog.io/xylem/devops-packages'
+jenkins_artifactory_username: 'devops-packages'
+jenkins_artifactory_password: '{{ jenkins_vaulted_artifactory_password }}'
+
+jenkins_yum_dependencies:
+  - epel-release
+  - ansible
+  - binutils
+  - createrepo
+  - docker-ce-18.09.2
+  - dkms
+  - git
+  - gcc
+  - glibc-devel
+  - glibc-headers
+  - jenkins-2.166
+  - kernel-devel
+  - kernel-headers
+  - libgomp
+  - libselinux-python
+  - make
+  - openssl-devel
+  - patch
+  - python-devel
+  - python2-pip
+  - rpm-build
+  - ruby-devel
+  - rubygems
+  - rubygem-rake
+  - vagrant-2.2.3
+  - VirtualBox-6.0
+
+jenkins_pip_dependencies:
+  - awscli
+  - boto
+  - molecule
+  - python-vagrant
+  - requests==2.21.0
+
+jenkins_ruby_gems:
+  - fpm
+  - xvfb
+
+jenkins_binary_dependencies:
+  - kubectl
+  - aws-iam-authenticator
+  - helm
+  - tiller
+  - packer

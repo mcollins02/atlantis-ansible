@@ -1,0 +1,15 @@
+logstash/logstash-test.conf
+paz1e1-salt.pem
+daz1e1-salt.pem
+*TODO*
+private.conf
+.vagrant*
+.project
+private
+junit*
+.kitchen/
+.cache/
+__pycache__/
+.vscode/
+.DS_Store
+.pyc

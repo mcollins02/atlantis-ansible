@@ -1,0 +1,23 @@
+---
+# vars file for control-machine
+control_machine_artifactory_username: 'devops-packages'
+control_machine_artifactory_password: '{{ control_machine_vaulted_artifactory_password }}'
+
+control_machine_bitbucket_repo: 'git@bitbucket.org:sensusanalytics-dev/xylem-ansible.git'
+
+control_machine_yum_dependencies:
+  - ansible-2.7.7
+  - epel-release
+  - python2-pip
+  - git
+
+control_machine_pip_dependencies:
+  - awscli
+  - boto
+
+control_machine_ssh_dir: '~/.ssh'
+control_machine_ansible_dir: '/etc/ansible'
+control_machine_vault_dir: '{{ control_machine_ansible_dir }}/.vault'
+control_machine_aws_pem_dir: '{{ control_machine_ansible_dir }}/.aws'
+control_machine_aws_config_dir: '~/.aws'
+control_machine_git_dir: '~/git'

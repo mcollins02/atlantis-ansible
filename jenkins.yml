@@ -1,0 +1,10 @@
+---
+- hosts: tag_component_jenkins
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - roles/jenkins/vars/vault.yml
+  
+  roles:
+    - role: jenkins

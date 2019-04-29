@@ -1,0 +1,2 @@
+---
+atlantis_bitbucket_token: '{{ vaulted_bitbucket_token }}'

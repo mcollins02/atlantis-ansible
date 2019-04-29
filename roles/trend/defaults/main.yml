@@ -1,0 +1,16 @@
+---
+trend_version: '10.0.0-2856'
+
+trend_artifactory_path: 'https://xylem.jfrog.io/xylem/devops-packages'
+trend_artifactory_username: 'devops-packages'
+trend_artifactory_password: '{{ vaulted_trend_artifactory_password }}'
+
+trend_env: '{{ hostvars[inventory_hostname]["ec2_tag_env"] }}'
+trend_hostname: '{{ hostvars[inventory_hostname]["ec2_tag_Name"] }}'
+
+trend_tenantID: '{{ vaulted_trend_tenantID }}'
+trend_token: '{{ vaulted_trend_token }}'
+trend_policyID: 1
+
+trend_slack_notify_enabled: true
+trend_slack_token: '{{ vaulted_trend_slack_token }}'

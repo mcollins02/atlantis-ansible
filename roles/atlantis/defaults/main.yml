@@ -1,0 +1,23 @@
+---
+# defaults file for atlantis
+atlantis_terraform_binary_version: '0.11.12'
+atlantis_terraform_binary_zip: 'terraform_{{ atlantis_terraform_binary_version }}_linux_amd64.zip'
+atlantis_terraform_download_path: 'https://releases.hashicorp.com/terraform/{{ atlantis_terraform_binary_version }}/{{ atlantis_terraform_binary_zip }}'
+
+atlantis_terragrunt_binary_version: 'v0.18.1'
+atlantis_terragrunt_binary_download_path: 'https://github.com/gruntwork-io/terragrunt/releases/download/{{ atlantis_terragrunt_binary_version }}/terragrunt_linux_amd64'
+
+atlantis_binary_version: '0.5.0'
+atlantis_binary_zip: 'atlantis_linux_amd64.zip'
+atlantis_binary_download_path: 'https://github.com/runatlantis/atlantis/releases/download/v{{ atlantis_binary_version }}/atlantis_linux_amd64.zip'
+
+atlantis_binary_path: '/usr/bin'
+atlantis_unit_file: 'atlantis.service'
+atlantis_config_file: 'atlantis.conf'
+atlantis_environment_file: 'atlantis'
+
+atlantis_environment_url: 'https://atlantis.xylem-mcc.com'
+atlantis_environment_bitbucket_user: 'sa-ops'
+atlantis_environment_bitbucket_token: '{{ atlantis_bitbucket_token }}'
+atlantis_environment_repo_list: 'bitbucket.org/sensusanalytics-dev/xylem-aws-terraform'
+atlantis_allow_repo_config: 'true'

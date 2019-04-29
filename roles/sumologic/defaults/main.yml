@@ -1,0 +1,17 @@
+---
+# defaults file for sumologic
+sumologic_version: '19.227-15'
+sumlogic_app_logpath: '/opt/sensus/**/*.log'
+sumologic_name: '{{ hostvars[inventory_hostname]["ansible_facts"]["fqdn"] }}'
+
+sumologic_collector_config_path: '/opt/SumoCollector/config'
+
+sumologic_collector_sources_path: '/opt/SumoCollector/sources'
+autolinematching:
+  useAutolineMatching: false
+  manualPrefixRegexp: '^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2},\\d{3}\\s\\|.*'
+
+sumologic_skip_autoline_apps:
+  - action-guide
+  - priority-devices
+  - rni-integration

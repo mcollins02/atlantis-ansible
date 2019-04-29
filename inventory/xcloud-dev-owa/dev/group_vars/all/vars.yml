@@ -1,0 +1,4 @@
+---
+aws_key: owa-devops-dev.pem
+aws_region: us-east-1
+aws_credential_file: xcloud-dev-owa

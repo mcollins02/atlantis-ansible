@@ -1,0 +1,4 @@
+---
+aws_key: sa-canada.pem
+aws_region: ca-central-1
+aws_credential_file: sa-prod

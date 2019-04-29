@@ -1,0 +1,48 @@
+---
+- name: jenkins | add {{ jenkins_user }} user to the {{ jenkins_docker_group }} group
+  user:
+    name: '{{ jenkins_user }}'
+    groups: '{{ jenkins_docker_group }}'
+    append: true
+    state: present
+
+- name: jenkins | copy sudoers file
+  copy:
+    src: 'files/sudoers'
+    dest: '/etc/sudoers'
+
+- name: jenkins | template jenkins config file
+  template:
+    src: templates/jenkins.default.j2
+    dest: /etc/sysconfig/jenkins
+    owner: root
+    group: root
+
+- name: jenkins | ensure jenkins service is started and enabled
+  systemd:
+    name: jenkins
+    enabled: true
+    state: started
+
+- name: jenkins | give jenkins time to come up completely
+  pause:
+    seconds: 30
+
+- name: jenkins | check if initialAdminPassword file exists
+  stat:
+    path: /jenkins/secrets/initialAdminPassword
+  register: jenkins_initial_admin_passwd
+
+- block:
+
+    - name: jenkins | cat the temp jenkins admin password
+      command: 'cat /jenkins/secrets/initialAdminPassword'
+      register: jenkins_admin_pass
+      changed_when: false
+
+    - name: jenkins | show the temp admin password
+      debug:
+        msg: 'Initial admin password for jenkins ---> {{ jenkins_admin_pass.stdout }}'
+      changed_when: false
+
+  when: jenkins_initial_admin_passwd.stat.exists

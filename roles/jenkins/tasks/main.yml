@@ -1,0 +1,9 @@
+---
+- name: include the mount task file
+  import_tasks: mount.yml
+
+- name: include the packages task file
+  import_tasks: dependencies.yml
+
+- name: include the jenkins task file
+  import_tasks: jenkins.yml

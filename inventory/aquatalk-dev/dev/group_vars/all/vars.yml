@@ -1,0 +1,4 @@
+---
+aws_key: aquatalk-devops-dev.pem
+aws_region: us-east-1
+aws_credential_file: aquatalk-dev

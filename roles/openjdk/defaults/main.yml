@@ -1,0 +1,8 @@
+---
+# defaults file for openjdk
+openjdk_version: '1.8.0'
+
+openjdk_cacerts: false
+openjdk_cacerts_location: '/etc/pki/ca-trust/extracted/java/cacerts'
+openjdk_s3_bucket: 'sa-releases'
+openjdk_s3_cacerts_object: '/certs/cacerts'

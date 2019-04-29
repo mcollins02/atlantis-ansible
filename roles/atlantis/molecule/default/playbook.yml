@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: all
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - ../../vars/vault.yml
+  vars:
+    bitbucket_token: '{{ vaulted_bitbucket_token }}'
+
+  roles:
+    - role: atlantis

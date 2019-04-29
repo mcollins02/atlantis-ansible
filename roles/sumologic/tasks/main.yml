@@ -1,0 +1,66 @@
+---
+# tasks file for sumologic
+
+- name: install sumologic rpm
+  yum:
+    name: 'https://collectors.sumologic.com/rest/download/rpm/64?version={{ sumologic_version }}'
+    state: present
+
+- name: create {{ sumologic_collector_sources_path }}
+  file:
+    path: '{{ sumologic_collector_sources_path }}'
+    state: directory
+    mode: 0775
+    owner: root
+    group: sumologic_collector
+
+- name: template sumologic user.properties
+  template:
+    src: 'templates/user.properties.j2'
+    dest: '{{ sumologic_collector_config_path }}/user.properties'
+  vars:
+    sumologic_component: '{{ hostvars[inventory_hostname]["ec2_tag_component"] }}'
+    sumologic_env: '{{ hostvars[inventory_hostname]["ec2_tag_env"] }}'
+
+- name: template sumologic secure collector configs
+  template:
+    src: 'templates/sources.json.j2'
+    dest: '{{ sumologic_collector_sources_path }}/secure.json'
+  vars:
+    sumologic_component: 'Systemlogs/secure'
+    sumologic_env: '{{ hostvars[inventory_hostname]["ec2_tag_env"] }}'
+    sumologic_path_expression: '/var/log/secure'
+    skip_autoline: true
+  notify: restart collector
+
+- name: template sumologic messages collector configs
+  template:
+    src: 'templates/sources.json.j2'
+    dest: '{{ sumologic_collector_sources_path }}/messages.json'
+  vars:
+    sumologic_component: 'Systemlogs/messages'
+    sumologic_env: '{{ hostvars[inventory_hostname]["ec2_tag_env"] }}'
+    sumologic_path_expression: '/var/log/messages'
+    skip_autoline: true
+  notify: restart collector
+
+- name: set skip_autoline to false for certain apps
+  set_fact:
+    skip_autoline: false
+  when: hostvars[inventory_hostname]["ec2_tag_component"] in sumologic_skip_autoline_apps
+
+- name: template sumologic application source configs
+  template:
+    src: 'templates/sources.json.j2'
+    dest: '{{ sumologic_collector_sources_path }}/{{ sumologic_component }}.json'
+  vars:
+    sumologic_component: '{{ hostvars[inventory_hostname]["ec2_tag_component"] }}'
+    sumologic_env: '{{ hostvars[inventory_hostname]["ec2_tag_env"] }}'
+    sumologic_path_expression: '{{ sumlogic_app_logpath }}'
+  notify: restart collector
+
+- name: ensure collector is started
+  systemd:
+    name: collector
+    state: started
+    enabled: true

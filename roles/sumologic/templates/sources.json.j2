@@ -1,0 +1,21 @@
+{
+  "api.version":"v1",
+  "source":{
+     "sourceType":"LocalFile",
+     "name":"{{ sumologic_component }}",
+     "pathExpression":"{{ sumologic_path_expression }}",
+     "category":"{{ sumologic_component }}/{{ sumologic_env }}"{% if autolinematching is defined and skip_autoline is sameas False %},{% endif %}
+{% if autolinematching is defined and skip_autoline is sameas False %}
+     "useAutolineMatching":"{{ autolinematching.useAutolineMatching }}",
+     "manualPrefixRegexp":"{{ autolinematching.manualPrefixRegexp }}"
+ {% endif %} {% if hostvars[inventory_hostname]["ec2_tag_proficio"] is defined %},{% endif %}
+{% if hostvars[inventory_hostname]["ec2_tag_proficio"] is defined %}
+     "filters": [{
+        "filterType": "Forward",
+        "name": "proficio",
+        "regexp": "(?s).*(?s)",
+        "sinkId": 1470
+     }]
+{% endif %}
+  }
+}

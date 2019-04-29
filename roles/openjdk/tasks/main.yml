@@ -1,0 +1,24 @@
+---
+# tasks file for openjdk
+- name: main | installing openjdk
+  yum:
+    name: 'java-{{ openjdk_version }}-openjdk-devel'
+    state: present
+
+- block:
+
+    - name: main | copy cacerts seed file, to add root certs
+      aws_s3:
+        bucket: '{{ openjdk_s3_bucket }}'
+        object: '{{ openjdk_s3_cacerts_object }}'
+        dest: '{{ openjdk_cacerts_location }}'
+        mode: get
+
+    - name: main | setting file permissions
+      file:
+        path: '{{ openjdk_cacerts_location }}'
+        mode: 0600
+        owner: root
+        group: root
+
+  when: openjdk_cacerts

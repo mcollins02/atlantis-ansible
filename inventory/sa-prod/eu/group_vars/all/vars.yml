@@ -1,0 +1,4 @@
+---
+aws_key: paz1e1-salt.pem
+aws_region: eu-west-1
+aws_credential_file: sa-prod

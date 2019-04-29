@@ -1,0 +1,54 @@
+---
+- name: mount | ensure jenkins group is created
+  group:
+    name: '{{ jenkins_group }}'
+    state: present
+
+- name: mount | ensure jenkins user and home dir is created
+  user:
+    name: '{{ jenkins_user }}'
+    group: '{{ jenkins_group }}'
+    home: '{{ jenkins_home }}'
+    shell: '/bin/bash'
+    append: true
+    system: true
+    state: present
+
+- block:
+
+    - name: mount | ensure additional ebs volumes are ext4
+      filesystem:
+        fstype: ext4
+        dev: '{{ item }}'
+      loop:
+        - '{{ jenkins_ebs_vol }}'
+        - '{{ jenkins_docker_ebs_vol }}'
+
+    - name: mount | mount ebs volumes
+      mount:
+        path: '{{ item.path }}'
+        src: '{{ item.src }}'
+        fstype: ext4
+        state: mounted
+      loop:
+        - { path: '{{ jenkins_home }}', src: '{{ jenkins_ebs_vol }}' }
+        - { path: '{{ jenkins_docker_home }}', src: '{{ jenkins_docker_ebs_vol }}' }
+
+
+    - name: mount | create log dir in {{ jenkins_home }}
+      file:
+        path: '{{ jenkins_home }}/logs'
+        owner: '{{ jenkins_user }}'
+        group: '{{ jenkins_group }}'
+        mode: 0755
+        state: directory
+
+    - name: mount | set jenkins as owner of {{ jenkins_home }} recursively
+      file:
+        path: '{{ jenkins_home }}'
+        owner: '{{ jenkins_user }}'
+        group: '{{ jenkins_group }}'
+        mode: 0755
+        state: directory
+
+  when: jenkins_ec2

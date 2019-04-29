@@ -1,0 +1,10 @@
+---
+- hosts: ansible
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - roles/atlantis/vars/vault.yml
+
+  roles:
+    - role: atlantis

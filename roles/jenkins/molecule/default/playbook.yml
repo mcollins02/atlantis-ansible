@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - ../../vars/vault.yml
+  vars:
+    aws_key: daz1e1-salt.pem
+    aws_region: us-east-1
+    aws_credential_file: sensusgrid-dev1
+
+  roles:
+    - role: jenkins

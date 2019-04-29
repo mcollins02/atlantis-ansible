@@ -1,0 +1,3 @@
+---
+sumologic_accessid: '{{ vaulted_sumologic_accessid }}'
+sumologic_accesskey: '{{ vaulted_sumologic_accesskey }}'

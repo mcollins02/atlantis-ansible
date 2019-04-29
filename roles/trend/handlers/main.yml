@@ -1,0 +1,6 @@
+- name: send slack notification
+  slack:
+    username: ansibot
+    token: '{{ vaulted_trend_slack_token }}'
+    msg: 'Deployed Trend {{ trend_version }} to {{ trend_env }} {{ trend_hostname }}'
+  when: trend_slack_notify_enabled

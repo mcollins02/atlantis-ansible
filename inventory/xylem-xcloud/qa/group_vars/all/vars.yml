@@ -1,0 +1,4 @@
+---
+aws_key: xcloud-devops.pem
+aws_region: us-east-1
+aws_credential_file: xylem-xcloud

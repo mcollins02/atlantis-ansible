@@ -1,0 +1,10 @@
+- hosts: tag_sumologic_true:tag_datadog_true
+  remote_user: centos
+  become: true
+  become_user: root
+  vars_files:
+    - roles/sumologic/vars/vault.yml
+
+  roles:
+    - role: sumologic
+      tags: sumologic

@@ -1,0 +1,133 @@
+---
+
+- name: install yum dependencies
+  yum:
+    name: '{{ item }}'
+    state: present
+  loop:
+    - vim
+    - wget
+    - unzip
+    - git
+    
+- name: check that terraform binary exists
+  stat:
+    path: '{{ atlantis_binary_path }}/terraform'
+  register: terraform
+
+- name: check terraform version
+  shell: 'terraform version | head -n 1'
+  changed_when: false
+  register: installed_terraform_version
+  when: terraform.stat.exists
+
+- name: download terraform binary
+  get_url:
+    url: '{{ atlantis_terraform_download_path }}'
+    dest: /tmp
+  when: 'not terraform.stat.exists or atlantis_terraform_binary_version not in installed_terraform_version.stdout'
+  register: downloaded_terraform
+
+- name: unzip terraform binary
+  unarchive:
+    src: '/tmp/{{ atlantis_terraform_binary_zip }}'
+    dest: '{{ atlantis_binary_path }}'
+    remote_src: true
+    mode: 0755
+    owner: root
+    group: root
+  when: downloaded_terraform.changed
+
+- name: check that terragrunt binary exists
+  stat:
+    path: '{{ atlantis_binary_path }}/terragrunt'
+  register: terragrunt
+
+- name: check terragrunt version
+  shell: 'terragrunt --version'
+  changed_when: false
+  register: installed_terragrunt_version
+  when: terragrunt.stat.exists
+
+- name: download terragrunt binary to {{ atlantis_binary_path }}
+  get_url:
+    url: '{{ atlantis_terragrunt_binary_download_path }}'
+    dest: '{{ atlantis_binary_path }}/terragrunt'
+    mode: 0755
+    owner: root
+    group: root
+  when: 'not terragrunt.stat.exists or atlantis_terragrunt_binary_version not in installed_terragrunt_version.stdout'
+
+- name: check that atlantis binary exists
+  stat:
+    path: '{{ atlantis_binary_path }}/atlantis'
+  register: atlantis
+
+- name: check atlantis version
+  shell: 'atlantis version'
+  changed_when: false
+  register: installed_atlantis_version
+  when: atlantis.stat.exists
+
+- name: download atlantis binary
+  get_url:
+    url: '{{ atlantis_binary_download_path }}'
+    dest: /tmp
+  when: 'not atlantis.stat.exists or atlantis_binary_version not in installed_atlantis_version.stdout'
+  register: downloaded_atlantis
+
+- name: unzip atlantis binary
+  unarchive:
+    src: '/tmp/{{ atlantis_binary_zip }}'
+    dest: '{{ atlantis_binary_path }}'
+    remote_src: true
+    mode: 0755
+    owner: root
+    group: root
+  when: downloaded_atlantis.changed
+
+- name: cleanup zips
+  file:
+    path: '/tmp/{{ item }}'
+    state: absent
+  loop:
+    - '{{ atlantis_binary_zip }}'
+    - '{{ atlantis_terraform_binary_zip }}'
+
+- name: create atlantis unit files for systemd
+  copy:
+    src: 'files/{{ atlantis_unit_file }}'
+    dest: '/lib/systemd/system/{{ atlantis_unit_file }}'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: create environment for systemd
+  template:
+    src: 'templates/atlantis'
+    dest: '/etc/default/atlantis'
+
+- name: create atlantis.log
+  file:
+    path: /var/log/atlantis.log
+    state: touch
+    owner: centos
+    group: adm
+    mode: 0644
+    modification_time: 'preserve'
+    access_time: 'preserve'
+
+- name: start atlantis
+  service:
+    name: atlantis
+    state: started
+    enabled: true
+
+- name: create atlantis.conf for log aggregation
+  copy:
+    src: 'files/{{ atlantis_config_file }}'
+    dest: '/etc/rsyslog.d/{{ atlantis_config_file }}'
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart rsyslog
